@@ -9,7 +9,8 @@ import csv
 import re
 import sys
 
-from evaluator import Sentimentor
+# from evaluator import Sentimentor
+from viral_heat import sentimentalize
 from pymongo import MongoClient
 from datetime import datetime, timedelta
 
@@ -35,10 +36,9 @@ if __name__ == "__main__":
                         word_to_name[word] += [mappings[1].lower()]
 
     sym = sys.argv[1]
-    s = Sentimentor()
     client = MongoClient()
     db = client['tweet-stock']
-    date = datetime.strptime("20090101", "%Y%m%d")
+    date = datetime.strptime("20100101", "%Y%m%d")
     end_date = datetime.strptime("20120101", "%Y%m%d")
     while date < end_date:
         sents = 0
@@ -47,11 +47,16 @@ if __name__ == "__main__":
                         "related_to" : ticker_to_name[sym.upper()] }
         price_query = { "date" : date,
                         "sym" : sym }
-        for tweet in db.tweets.find(tweet_query):
-            sents += s.eval(tweet['content'])
-        sents /= float(db.tweets.count())
-        price = db.prices.find_one(price_query)
-        if price:
-            price = price['price']
-            print "%s,%.2f,%.10f" % (date.strftime("%Y-%m-%d"), price, sents)
+        tq = db.tweets.find(tweet_query)
+        if tq.count():
+            for tweet in tq:
+                s = sentimentalize(tweet['content'], db.sents)
+                sents += s
+            sents /= float(tq.count())
+            price = db.prices.find_one(price_query)
+            if price:
+                price = price['price']
+                print "%s,%.2f,%.10f" % (date.strftime("%Y-%m-%d"), price,
+                                         sents * 100)
+                sys.stdout.flush()
         date += timedelta(days=1)

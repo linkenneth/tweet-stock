@@ -45,16 +45,16 @@ def query(name, num=50, start_date="20060101", end_date="20110101"):
         '&mintime=' + str(start_date) + \
         '&maxtime=' + str(end_date) + \
         '&q=' + name
-    return json.loads(urlopen(url).read())['response']['list']
+    return json.loads(urlopen(url).read(), encoding='utf-8')['response']['list']
 
 def find_tweets(name, coll, word_to_name):
     """
     Similar to 'query(name)', but finds a multitude of tweets and loads
     them into the database.
     """
-    start_date = datetime.strptime("20090601", "%Y%m%d")
+    start_date = datetime.strptime("20100101", "%Y%m%d")
     end_date = datetime.strptime("20110101", "%Y%m%d")
-    while end_date <= datetime.strptime("20120101", "%Y%m%d"):
+    while end_date <= datetime.strptime("20120301", "%Y%m%d"):
         qs = query(name, 200, start_date.strftime("%Y%m%d"),
                    end_date.strftime("%Y%m%d"))
         for q in qs:
