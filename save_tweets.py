@@ -7,14 +7,14 @@ from pymongo import MongoClient
 
 STOPWORDS = set(word.strip() for word in open("data/stopwords.txt"))
 
-def save(tweet, db, word_to_name):
+def save(tweet, coll, word_to_name):
     """
-    Saves a TWEET in the database DB if TWEET mentions contains a word from
-    WORDS_TO_COMPANY (mostly the names of important companies, but can be
-    expanded later to do other stuff). A tweet is defined by Topsy and is
-    JSON form.
+    Saves a TWEET in the collection COLL if TWEET mentions contains a word
+    from WORDS_TO_COMPANY (mostly the names of important companies, but can
+    be expanded later to do other stuff). A tweet is defined by Topsy and
+    is JSON form.
     """
-    text = tweet.lower()
+    text = tweet['content'].lower()
     words = re.findall(r"(\w+)|['\-/()=:;]['\-/()=:;]+", text)
     companies = []
     for word in words:
@@ -26,9 +26,10 @@ def save(tweet, db, word_to_name):
     if companies:
         shit = {
             "date" : datetime.fromtimestamp(tweet['firstpost_date']),
-            "content" : tweet['content']
+            "content" : tweet['content'],
+            "related_to" : companies
         }
-        db.save(shit)
+        coll.save(shit)
 
 def query(name):
     """
@@ -40,9 +41,20 @@ def query(name):
         '&q=' + name
     return json.loads(urlopen(url).read())['response']['list']
 
+def find_tweets(name, coll, word_to_name):
+    """
+    Similar to 'query(name)', but finds a multitude of tweets and loads
+    them into the database.
+    """
+    qs = query(name)
+    for q in qs:
+        save(q, coll, word_to_name)
+
 if __name__ == "__main__":
     client = MongoClient()
-    tweets = client['tweets']
+    db = client['tweet-stock']
+    tweets = db['tweets']
+
     with open("data/companylist.csv") as f:
         f.readline()  # skip header
         c = csv.reader(f)
