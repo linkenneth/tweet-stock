@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 STOPWORDS = set(word.strip() for word in open("data/stopwords.txt"))
 
-def save(tweet, coll, word_to_name):
+def save_tweet(tweet, coll, word_to_name):
     """
     Saves a TWEET in the collection COLL if TWEET mentions contains a word
     from WORDS_TO_COMPANY (mostly the names of important companies, but can
@@ -39,6 +39,7 @@ def query(name, num):
         'apikey=WG2JO6FTYF7Q4MV4AYLAAAAAAAB4HI2LRBIQAAAAAAAFQGYA' + \
         '&type=tweet' + \
         '&perpage=' + str(num) + \
+        '&allow_lang=en' + \
         '&q=' + name
     return json.loads(urlopen(url).read())['response']['list']
 
@@ -49,7 +50,7 @@ def find_tweets(name, coll, word_to_name):
     """
     qs = query(name, 200)
     for q in qs:
-        save(q, coll, word_to_name)
+        save_tweet(q, coll, word_to_name)
 
 if __name__ == "__main__":
     client = MongoClient()
