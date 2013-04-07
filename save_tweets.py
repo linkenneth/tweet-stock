@@ -10,10 +10,16 @@ def save(tweet, db, words_to_company):
     JSON form.
     """
     words = re.findall(r"(\w+)|['\-/()=:;]['\-/()=:;]+", tweet)
+    companies = []
+    for word in words:
+        potential_companies = words_to_company.get(word, None)
+        if potential_companies is not None:
+            companies += companies
+    print companies
 
 if __name__ == "__main__":
-    client = MongoClient()
-    tweets = client['tweets']
+    # client = MongoClient()
+    # tweets = client['tweets']
     with open("data/companylist.csv") as f:
         f.readline()  # skip header
         c = csv.reader(f)
