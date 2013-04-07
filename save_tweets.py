@@ -1,8 +1,13 @@
 import re
 import csv
+import json
+from datetime import datetime
+from urllib2 import urlopen
 from pymongo import MongoClient
 
-def save(tweet, db, words_to_company):
+STOPWORDS = set(word.strip() for word in open("data/stopwords.txt"))
+
+def save(tweet, db, word_to_name):
     """
     Saves a TWEET in the database DB if TWEET mentions contains a word from
     WORDS_TO_COMPANY (mostly the names of important companies, but can be
@@ -13,28 +18,45 @@ def save(tweet, db, words_to_company):
     words = re.findall(r"(\w+)|['\-/()=:;]['\-/()=:;]+", text)
     companies = []
     for word in words:
-        potential_companies = words_to_company.get(word, None)
+        if word in STOPWORDS:
+            continue
+        potential_companies = word_to_name.get(word, None)
         if potential_companies is not None:
             companies += potential_companies
-    print companies
+    if companies:
+        shit = {
+            "date" : datetime.fromtimestamp(tweet['firstpost_date']),
+            "content" : tweet['content']
+        }
+
+def query(name):
+    """
+    Queries for old twitter data that matches name.
+    """
+    url = 'http://otter.topsy.com/search.json?' + \
+        'apikey=WG2JO6FTYF7Q4MV4AYLAAAAAAAB4HI2LRBIQAAAAAAAFQGYA' + \
+        '&type=tweet' + \
+        '&q=' + name
+    return json.loads(urlopen(url).read())['response']['list']
 
 if __name__ == "__main__":
-    # client = MongoClient()
-    # tweets = client['tweets']
+    client = MongoClient()
+    tweets = client['tweets']
     with open("data/companylist.csv") as f:
         f.readline()  # skip header
         c = csv.reader(f)
-        nametoticker = dict()
-        tickertoname = dict()
-        wordtoname = dict()
-        stopwords = ["inc","inc.","ltd","ltd.","co","co."]
+        name_to_ticker = dict()
+        ticker_to_name = dict()
+        word_to_name = dict()
+        stopwords = ["inc","inc.","ltd","ltd.","co","co.", ""]
         for mappings in c:
-            nametoticker[mappings[1].lower()] = mappings[0]
-            tickertoname[mappings[0]] = mappings[1].lower()
-            namewords = re.split(",? ", mappings[1].lower())
+            name_to_ticker[mappings[1].lower()] = mappings[0]
+            ticker_to_name[mappings[0]] = mappings[1].lower()
+            namewords = mappings[1].lower().split()
             for word in namewords:
+                word = re.sub("[&,!.:()]", "", word)
                 if word not in stopwords: 
-                    if word not in wordtoname:
-                        wordtoname[word] = [mappings[1].lower()]
+                    if word not in word_to_name:
+                        word_to_name[word] = [mappings[1].lower()]
                     else:
-                        wordtoname[word] += [mappings[1].lower()]
+                        word_to_name[word] += [mappings[1].lower()]

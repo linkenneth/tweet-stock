@@ -13,7 +13,7 @@ def train(sf = '/home/link/code/tweet-stock/data/subjclueslen1-HLTEMNLP05.tff'):
         "both" : 0.0,  # no way to distinguish with unigrams
         "weaksubj" : 1.0,
         "strongsubj" : 5.0
-        }
+    }
 
     sentiments = {}  # make default 0?
 
