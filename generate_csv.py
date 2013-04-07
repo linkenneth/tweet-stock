@@ -38,7 +38,7 @@ if __name__ == "__main__":
     sym = sys.argv[1]
     client = MongoClient()
     db = client['tweet-stock']
-    date = datetime.strptime("20130401", "%Y%m%d")
+    date = datetime.strptime("20130325", "%Y%m%d")
     end_date = datetime.strptime("20130408", "%Y%m%d")
     while date < end_date:
         sents = 0
@@ -50,6 +50,7 @@ if __name__ == "__main__":
         tq = db.tweets.find(tweet_query)
         if tq.count():
             for tweet in tq:
+                # print tweet['content']
                 s = sentimentalize(tweet['content'], db.sents)
                 sents += s
             sents /= float(tq.count())
