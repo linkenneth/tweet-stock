@@ -25,11 +25,13 @@ if __name__ == "__main__":
         f.readline()  # skip header
         c = csv.reader(f)
         nametoticker = dict()
+        tickertoname = dict()
         wordtoname = dict()
         stopwords = ["inc","inc.","ltd","ltd.","co","co."]
         for mappings in c:
             nametoticker[mappings[1].lower()] = mappings[0]
-            namewords = (mappings[1].lower()).split()
+            tickertoname[mappings[0]] = mappings[1].lower()
+            namewords = re.split(",? ", mappings[1].lower())
             for word in namewords:
                 if word not in stopwords: 
                     if word not in wordtoname:
