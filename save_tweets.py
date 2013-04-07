@@ -9,12 +9,13 @@ def save(tweet, db, words_to_company):
     expanded later to do other stuff). A tweet is defined by Topsy and is
     JSON form.
     """
-    words = re.findall(r"(\w+)|['\-/()=:;]['\-/()=:;]+", tweet)
+    text = tweet.lower()
+    words = re.findall(r"(\w+)|['\-/()=:;]['\-/()=:;]+", text)
     companies = []
     for word in words:
         potential_companies = words_to_company.get(word, None)
         if potential_companies is not None:
-            companies += companies
+            companies += potential_companies
     print companies
 
 if __name__ == "__main__":
