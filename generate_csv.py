@@ -50,6 +50,7 @@ if __name__ == "__main__":
         tq = db.tweets.find(tweet_query)
         if tq.count():
             for tweet in tq:
+                print tweet['content']
                 s = sentimentalize(tweet['content'], db.sents)
                 sents += s
             sents /= float(tq.count())
