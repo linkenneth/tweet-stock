@@ -31,15 +31,19 @@ def save_tweet(tweet, coll, word_to_name):
         }
         coll.save(shit)
 
-def query(name, num):
+def query(name, num=50, start_date="20060101", end_date="20110101"):
     """
     Queries for old twitter data that matches NAME, up to NUM tweets.
     """
+    start_date = datetime.strptime(start_date, "%Y%m%d").strftime("%s")
+    end_date = datetime.strptime(end_date, "%Y%m%d").strftime("%s")
     url = 'http://otter.topsy.com/search.json?' + \
         'apikey=WG2JO6FTYF7Q4MV4AYLAAAAAAAB4HI2LRBIQAAAAAAAFQGYA' + \
         '&type=tweet' + \
         '&perpage=' + str(num) + \
         '&allow_lang=en' + \
+        '&mintime=' + str(start_date) + \
+        '&maxtime=' + str(end_date) + \
         '&q=' + name
     return json.loads(urlopen(url).read())['response']['list']
 
@@ -48,9 +52,13 @@ def find_tweets(name, coll, word_to_name):
     Similar to 'query(name)', but finds a multitude of tweets and loads
     them into the database.
     """
-    qs = query(name, 200)
-    for q in qs:
-        save_tweet(q, coll, word_to_name)
+    start_date = datetime.strptime("20090101", "%Y%m%d")
+    end_date = datetime.strptime("20100101", "%Y%m%d")
+    while end_date <= datetime.strptime("20120101", "%Y%m%d"):
+        qs = query(name, 200)
+        for q in qs:
+            save_tweet(q, coll, word_to_name)
+        start_date, end_date = end_date, end_date + timedelta(days=365)
 
 if __name__ == "__main__":
     client = MongoClient()
