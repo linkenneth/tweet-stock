@@ -28,6 +28,7 @@ def save(tweet, db, word_to_name):
             "date" : datetime.fromtimestamp(tweet['firstpost_date']),
             "content" : tweet['content']
         }
+        db.save(shit)
 
 def query(name):
     """
