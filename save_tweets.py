@@ -31,13 +31,14 @@ def save(tweet, coll, word_to_name):
         }
         coll.save(shit)
 
-def query(name):
+def query(name, num):
     """
-    Queries for old twitter data that matches name.
+    Queries for old twitter data that matches NAME, up to NUM tweets.
     """
     url = 'http://otter.topsy.com/search.json?' + \
         'apikey=WG2JO6FTYF7Q4MV4AYLAAAAAAAB4HI2LRBIQAAAAAAAFQGYA' + \
         '&type=tweet' + \
+        '&perpage=' + str(num) + \
         '&q=' + name
     return json.loads(urlopen(url).read())['response']['list']
 
@@ -46,7 +47,7 @@ def find_tweets(name, coll, word_to_name):
     Similar to 'query(name)', but finds a multitude of tweets and loads
     them into the database.
     """
-    qs = query(name)
+    qs = query(name, 200)
     for q in qs:
         save(q, coll, word_to_name)
 
