@@ -7,7 +7,7 @@ class Sentimentor:
         self.sentiments = train.train(sf)
     def eval(self, text):
         score = 0.0
-        r = re.findall("\w+")
+        r = re.findall("\w+", text)
         for word in r:
-            score += self.sentiments.get(word, 0)
+            score += self.sentiments.get(word.lower(), 0)
         return score / len(r)

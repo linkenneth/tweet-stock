@@ -17,7 +17,7 @@ def train(sf = '/home/link/code/tweet-stock/data/subjclueslen1-HLTEMNLP05.tff'):
 
     sentiments = {}  # make default 0?
 
-    with open(f) as f:
+    with open(sf) as f:
         for line in f:
             x = dict(x.split("=") for x in line.split())
             sentiments[x['word1']] = weights[x['type']] * \

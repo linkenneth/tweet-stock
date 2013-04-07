@@ -52,13 +52,14 @@ def find_tweets(name, coll, word_to_name):
     Similar to 'query(name)', but finds a multitude of tweets and loads
     them into the database.
     """
-    start_date = datetime.strptime("20090101", "%Y%m%d")
-    end_date = datetime.strptime("20100101", "%Y%m%d")
+    start_date = datetime.strptime("20090601", "%Y%m%d")
+    end_date = datetime.strptime("20110101", "%Y%m%d")
     while end_date <= datetime.strptime("20120101", "%Y%m%d"):
-        qs = query(name, 200)
+        qs = query(name, 200, start_date.strftime("%Y%m%d"),
+                   end_date.strftime("%Y%m%d"))
         for q in qs:
             save_tweet(q, coll, word_to_name)
-        start_date, end_date = end_date, end_date + timedelta(days=365)
+        start_date, end_date = end_date, end_date + timedelta(days=31)
 
 if __name__ == "__main__":
     client = MongoClient()

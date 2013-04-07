@@ -28,13 +28,14 @@ def get_historical_prices(symbol, start_date, end_date):
     data = [day[:-2].split(',') for day in days][1:]
     return data
 
-def save_price(entry, coll):
+def save_price(entry, symbol, coll):
     shit = {
         "date" : datetime.strptime(entry[0], "%Y-%m-%d"),
-        "price" : float(entry[4])
+        "price" : float(entry[4]),
+        "sym" : symbol
     }
     coll.save(shit)
 
 def find_prices(symbol, start_date, end_date, coll):
     for x in get_historical_prices(symbol, start_date, end_date):
-        save_price(x, coll)
+        save_price(x, symbol, coll)
