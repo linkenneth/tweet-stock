@@ -1,0 +1,9 @@
+# sudo k0de
+
+1) Get regression of form stock = m * sentiment + b
+2) take twitter sentiments for a new day i, sentiment_i
+3) stock_i = m * sentiment_i + b (fit it into the regression)
+4) (optional) smooth the curve - stock_i = alpha * stock_{i-1} + (1 -
+alpha) * m * sentiment_i + b
+       	alpha is between 0 to 1, a smoothing factor
+5) repeat for all predictions
